@@ -252,7 +252,6 @@ export function getWebviewHtml(webview: vscode.Webview): string {
 
 		function edgeAnchors(a, b) {
 			// simple left-to-right anchor: right-center of a -> left-center of b
-			const sameCol = Math.abs((a.x + a.width / 2) - (b.x + b.width / 2)) < 4;
 			if (b.x >= a.x + a.width * 0.5) {
 				return {
 					x1: a.x + a.width, y1: a.y + a.height / 2,
@@ -318,7 +317,12 @@ export function getWebviewHtml(webview: vscode.Webview): string {
 				el.style.top = node.y + 'px';
 				redrawEdges();
 			});
-			window.addEventListener('mouseup', () => { dragging = false; });
+			window.addEventListener('mouseup', () => {
+				if (dragging) {
+					dragging = false;
+					vscode.postMessage({ type: 'move', id: node.id, x: node.x, y: node.y });
+				}
+			});
 		}
 
 		function render(model) {

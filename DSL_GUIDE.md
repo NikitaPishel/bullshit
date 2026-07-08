@@ -19,6 +19,7 @@ happen locally inside the extension.
 | `- text` | A field (line of content) belonging to the currently active block. |
 | `- title` followed by indented `- item` lines | A field that becomes a list: the parent line is the field title, indented children are its items. |
 | `(ID)` | On its own line inside a block: declares a directed edge `ID -> currentBlock`. |
+| `(fromID) -> [toID]` | Combined form: declares an edge `fromID -> toID` AND activates/declares `toID` as the current block in one line. Preferred for readability when writing straight-line flows. |
 | `{text}` | A label for the edge. Can follow `(ID)` on the same line, or appear on its own line right after it. |
 | `# text` | Full-line comment. Ignored by the parser. |
 | `\x` | Escapes a reserved character (`# ( ) [ ] { } \`) so it renders literally inside text. |
@@ -43,7 +44,38 @@ happen locally inside the extension.
 
 ---
 
-## 2. Minimal valid example
+## 2. Preferred flow style: `(from) -> [to]`
+
+For linear/branching flows this reads more naturally than declaring `[ID]`
+then a separate `(ID)` inside it:
+
+```
+[Start]
+- проснулся
+- встал с кровати
+
+(Start) -> [B1]
+- Почистить зубы
+- умыться
+
+(Start) -> [B2]
+- Заварить чай
+- насыпать бублики
+
+(Start) -> [B3]
+- посрать
+- потереть попу
+
+(B3) -> [B4]
+- помыть руки
+- намылить попу
+```
+
+`Start` branches into `B1`, `B2`, `B3`; `B3` continues into `B4`. Both forms
+(`(ID)` alone inside a block, and `(from) -> [to]`) are valid and can be mixed
+freely — use whichever reads better for the diagram at hand.
+
+## 3. Minimal valid example
 
 ```
 [Start]
@@ -59,7 +91,7 @@ This produces two boxes ("Start", "End") connected by one labeled arrow.
 
 ---
 
-## 3. Full example (flowchart with an error branch)
+## 4. Full example (flowchart with an error branch)
 
 ```
 # Core system orchestration diagram
@@ -87,7 +119,7 @@ This produces two boxes ("Start", "End") connected by one labeled arrow.
 
 ---
 
-## 4. Rules an AI generator MUST follow
+## 5. Rules an AI generator MUST follow
 
 1. Every node referenced by an edge (`(ID)` or inline `[ID]`) must also be
    declared with its own `[ID]` block somewhere in the file — otherwise the
@@ -105,10 +137,14 @@ This produces two boxes ("Start", "End") connected by one labeled arrow.
    node text with a backslash, e.g. `Issue token \#200`.
 7. Comments (`# ...`) are only for the source file — they never appear in the
    rendered diagram.
+8. Prefer `(from) -> [to]` for linear/branching flows — it reads left-to-right
+   like the actual flow and declares the edge and the target node in one line.
+   Use a bare `[ID]` block only for the very first node, or when a node has
+   multiple incoming edges from different places in the file.
 
 ---
 
-## 5. Ready-to-use AI prompts
+## 6. Ready-to-use AI prompts
 
 ### Prompt A — generate a new diagram from a description
 
@@ -173,10 +209,5 @@ Output the FULL updated diagram source, not just the diff.
 
 ---
 
-## 6. How to view the result
+## 7. How to view the result
 
-1. In VS Code, run command **`Diagram: Open Preview`** (`Ctrl+Shift+P`).
-2. Open or paste the generated DSL into any text file and save it.
-3. The panel re-renders automatically on save/edit of the active file.
-4. Drag node headers to reposition, scroll wheel to zoom, drag empty canvas
-   to pan.

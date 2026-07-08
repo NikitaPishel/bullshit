@@ -49,6 +49,26 @@ export function parseDSL(source: string): DiagramModel {
 			continue;
 		}
 
+		// Combined edge + block declaration: (fromID) -> [toID], with optional trailing content.
+		const arrowBlockMatch = trimmed.match(/^\(([^)]+)\)\s*->\s*\[([^\]]+)\](.*)$/);
+		if (arrowBlockMatch) {
+			const from = arrowBlockMatch[1].trim();
+			const to = arrowBlockMatch[2].trim();
+			ensureNode(from);
+			ensureNode(to);
+			const edge: DiagramEdge = { from, to };
+			edges.push(edge);
+			lastEdge = edge;
+			currentId = to;
+			lastField = null;
+			lastFieldIndent = -1;
+			const rest = arrowBlockMatch[3].trim();
+			if (rest) {
+				extractInlineTokens(rest, currentId, edges, (edge2) => (lastEdge = edge2));
+			}
+			continue;
+		}
+
 		// Block declaration: [ID] with optional trailing inline content on the same line.
 		const blockMatch = trimmed.match(/^\[([^\]]+)\](.*)$/);
 		if (blockMatch) {

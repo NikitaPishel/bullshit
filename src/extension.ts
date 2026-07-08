@@ -40,6 +40,14 @@ export function activate(context: vscode.ExtensionContext) {
 				if (msg?.type === 'move' && typeof msg.id === 'string') {
 					layoutOverrides[msg.id] = { x: msg.x, y: msg.y };
 					void saveLayoutOverrides();
+					return;
+				}
+				if (msg?.type === 'export' && (msg.format === 'svg' || msg.format === 'png') && typeof msg.data === 'string') {
+					void exportDiagram(msg.format, msg.data);
+					return;
+				}
+				if (msg?.type === 'export-error' && typeof msg.message === 'string') {
+					vscode.window.showErrorMessage(msg.message);
 				}
 			});
 		}
@@ -161,6 +169,33 @@ function renderCurrentSource() {
 		fileName: lastSourceDoc.fileName.split(/[\\/]/).pop(),
 		model: positioned,
 	});
+}
+
+function defaultExportUri(format: 'svg' | 'png'): vscode.Uri | undefined {
+	if (!lastSourceDoc) {
+		return undefined;
+	}
+	const base = lastSourceDoc.uri.fsPath.replace(/\.[^./\\]+$/, '');
+	return vscode.Uri.file(base + '.' + format);
+}
+
+async function exportDiagram(format: 'svg' | 'png', data: string): Promise<void> {
+	const uri = await vscode.window.showSaveDialog({
+		defaultUri: defaultExportUri(format),
+		filters: format === 'svg' ? { 'SVG Image': ['svg'] } : { 'PNG Image': ['png'] },
+	});
+	if (!uri) {
+		return;
+	}
+
+	const bytes = format === 'svg' ? new TextEncoder().encode(data) : Buffer.from(data, 'base64');
+
+	try {
+		await vscode.workspace.fs.writeFile(uri, bytes);
+		vscode.window.showInformationMessage('Diagram exported: ' + uri.fsPath);
+	} catch (err) {
+		vscode.window.showErrorMessage('Failed to export diagram: ' + String(err));
+	}
 }
 
 export function deactivate() {}

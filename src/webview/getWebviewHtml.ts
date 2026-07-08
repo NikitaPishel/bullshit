@@ -13,7 +13,7 @@ export function getWebviewHtml(webview: vscode.Webview): string {
 	const nonce = getNonce();
 	const csp = [
 		`default-src 'none'`,
-		`img-src ${webview.cspSource} data:`,
+		`img-src ${webview.cspSource} data: blob:`,
 		`style-src ${webview.cspSource} 'unsafe-inline'`,
 		`script-src 'nonce-${nonce}'`,
 	].join('; ');
@@ -72,6 +72,7 @@ export function getWebviewHtml(webview: vscode.Webview): string {
 			background: var(--teal);
 			box-shadow: 0 0 8px var(--teal);
 		}
+		#toolbar .spacer { flex: 1; }
 		#toolbar button {
 			background: transparent;
 			border: 1px solid var(--border);
@@ -168,6 +169,9 @@ export function getWebviewHtml(webview: vscode.Webview): string {
 	<div id="toolbar">
 		<span class="dot"></span>
 		<span id="toolbar-title">no source</span>
+		<span class="spacer"></span>
+		<button id="export-svg">Export SVG</button>
+		<button id="export-png">Export PNG</button>
 		<button id="zoom-in">+</button>
 		<button id="zoom-out">–</button>
 		<button id="zoom-reset">reset</button>
@@ -352,6 +356,109 @@ export function getWebviewHtml(webview: vscode.Webview): string {
 
 			redrawEdges();
 		}
+
+		// ---- Export (SVG / PNG) ----
+		// Builds a self-contained SVG (plain rect/text, no foreignObject) from the
+		// *current* live node positions (including manual drags), so exports always
+		// match what's on screen.
+
+		function exportBounds() {
+			let maxX = 0;
+			let maxY = 0;
+			for (const n of nodesById.values()) {
+				maxX = Math.max(maxX, n.x + n.width);
+				maxY = Math.max(maxY, n.y + n.height);
+			}
+			return { width: maxX + 40, height: maxY + 40 };
+		}
+
+		function buildExportSvg() {
+			const bounds = exportBounds();
+			const W = Math.max(bounds.width, 200);
+			const H = Math.max(bounds.height, 200);
+
+			let svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" font-family="Segoe UI, Helvetica, Arial, sans-serif">';
+			svg += '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#0b1615" />';
+			svg += '<defs><marker id="arrow-export" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">' +
+				'<path d="M0,0 L10,5 L0,10 z" fill="#1f9d8c" /></marker></defs>';
+
+			for (const edge of currentEdges) {
+				const a = nodesById.get(edge.from);
+				const b = nodesById.get(edge.to);
+				if (!a || !b) { continue; }
+				const p = edgeAnchors(a, b);
+				const mx = (p.x1 + p.x2) / 2;
+				const c1x = p.x1 + (mx - p.x1) * 0.6;
+				const c2x = p.x2 - (p.x2 - mx) * 0.6;
+				const path = 'M ' + p.x1 + ' ' + p.y1 + ' C ' + c1x + ' ' + p.y1 + ', ' + c2x + ' ' + p.y2 + ', ' + p.x2 + ' ' + p.y2;
+				svg += '<path d="' + path + '" fill="none" stroke="#1f9d8c" stroke-width="1.6" marker-end="url(#arrow-export)" opacity="0.85" />';
+				if (edge.label) {
+					const lx = (p.x1 + p.x2) / 2;
+					const ly = (p.y1 + p.y2) / 2;
+					const w = Math.min(220, edge.label.length * 6 + 12);
+					svg += '<rect x="' + (lx - w / 2) + '" y="' + (ly - 9) + '" width="' + w + '" height="16" rx="4" fill="#0f201f" opacity="0.9" />';
+					svg += '<text x="' + lx + '" y="' + (ly + 3) + '" text-anchor="middle" font-size="10.5" fill="#8fb8b2">' + escapeHtml(edge.label) + '</text>';
+				}
+			}
+
+			for (const node of nodesById.values()) {
+				const title = node.fields[0] ? node.fields[0].title : node.id;
+				const bodyFields = node.fields.slice(1);
+
+				svg += '<g>';
+				svg += '<rect x="' + node.x + '" y="' + node.y + '" width="' + node.width + '" height="' + node.height + '" rx="8" fill="#123634" stroke="#1f5854" />';
+				svg += '<path d="M ' + node.x + ' ' + (node.y + 20) + ' L ' + node.x + ' ' + (node.y + 8) +
+					' Q ' + node.x + ' ' + node.y + ' ' + (node.x + 8) + ' ' + node.y +
+					' L ' + (node.x + node.width - 8) + ' ' + node.y +
+					' Q ' + (node.x + node.width) + ' ' + node.y + ' ' + (node.x + node.width) + ' ' + (node.y + 8) +
+					' L ' + (node.x + node.width) + ' ' + (node.y + 20) + ' Z" fill="#17423f" />';
+				svg += '<line x1="' + node.x + '" y1="' + (node.y + 28) + '" x2="' + (node.x + node.width) + '" y2="' + (node.y + 28) + '" stroke="#1f5854" />';
+				svg += '<text x="' + (node.x + 10) + '" y="' + (node.y + 18) + '" font-size="12.5" font-weight="600" fill="#dff7f2">' + escapeHtml(title) + '</text>';
+
+				let ty = node.y + 28 + 16;
+				for (const field of bodyFields) {
+					svg += '<text x="' + (node.x + 10) + '" y="' + ty + '" font-size="11.5" font-weight="600" fill="#dff7f2">' + escapeHtml(field.title) + '</text>';
+					ty += 18;
+					for (const item of field.items) {
+						svg += '<text x="' + (node.x + 18) + '" y="' + ty + '" font-size="11.5" fill="#8fb8b2">– ' + escapeHtml(item) + '</text>';
+						ty += 18;
+					}
+				}
+				svg += '</g>';
+			}
+
+			svg += '</svg>';
+			return svg;
+		}
+
+		document.getElementById('export-svg').addEventListener('click', () => {
+			const svg = buildExportSvg();
+			vscode.postMessage({ type: 'export', format: 'svg', data: svg });
+		});
+
+		document.getElementById('export-png').addEventListener('click', () => {
+			const svg = buildExportSvg();
+			const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+			const url = URL.createObjectURL(svgBlob);
+			const img = new Image();
+			img.onload = () => {
+				const scaleFactor = 2;
+				const canvas = document.createElement('canvas');
+				canvas.width = img.width * scaleFactor;
+				canvas.height = img.height * scaleFactor;
+				const ctx = canvas.getContext('2d');
+				ctx.scale(scaleFactor, scaleFactor);
+				ctx.drawImage(img, 0, 0);
+				URL.revokeObjectURL(url);
+				const dataUrl = canvas.toDataURL('image/png');
+				vscode.postMessage({ type: 'export', format: 'png', data: dataUrl.split(',')[1] });
+			};
+			img.onerror = () => {
+				URL.revokeObjectURL(url);
+				vscode.postMessage({ type: 'export-error', message: 'Failed to rasterize diagram to PNG.' });
+			};
+			img.src = url;
+		});
 
 		window.addEventListener('message', (event) => {
 			const msg = event.data;

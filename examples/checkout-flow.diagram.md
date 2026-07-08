@@ -1,24 +1,24 @@
-# Пример на новом синтаксисе (from) -> [to]
+# Example using the (from) -> [to] arrow syntax
 [Cart]
-- Пользователь на странице корзины
-- Список товаров и итог
+- User is on the cart page
+- Item list and total
 
-(Cart) -> [Checkout] {Жмёт "Оформить заказ"}
-- Форма доставки и оплаты
-- Валидация полей
+(Cart) -> [Checkout] {Clicks "Place order"}
+- Shipping and payment form
+- Field validation
 
-(Checkout) -> [PaymentOK] {Оплата прошла}
-- Списание средств успешно
-- Резервирование товара на складе
+(Checkout) -> [PaymentOK] {Payment succeeded}
+- Funds charged successfully
+- Reserve item in stock
 
-(Checkout) -> [PaymentFailed] {Оплата отклонена}
-- Показ причины отказа
-- Возврат на форму оплаты
+(Checkout) -> [PaymentFailed] {Payment declined}
+- Show decline reason
+- Return to payment form
 
 (PaymentOK) -> [OrderConfirmed]
-- Письмо с подтверждением
-- Создание записи в CRM
-  - Статус: оплачен
-  - Триггер уведомления складу
+- Confirmation email sent
+- Create CRM record
+  - Status: paid
+  - Trigger warehouse notification
 
-(PaymentFailed) -> [Checkout] {Повторная попытка}
+(PaymentFailed) -> [Checkout] {Retry attempt}

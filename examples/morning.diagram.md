@@ -1,21 +1,21 @@
 [Start]
-- проснулся
-- встал с кровати
-- гиги
-- гага
+- woke up
+- got out of bed
+- stretched
+- yawned
 
 (Start) -> [B1]
-- Почистить зубі
-- уміться
+- brush teeth
+- wash face
 
 (Start) -> [B2]
-- Заварить чай
-- насіпать бублікав
+- boil water
+- make tea
 
 (Start) -> [B3]
-- посрать
-- потірать попу
+- use the bathroom
+- wash hands
 
 (B3) -> [B4]
-- поміть рукі
-- наміліть попу
+- wash hands again
+- dry off

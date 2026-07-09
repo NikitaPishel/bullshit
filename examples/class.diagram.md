@@ -1,5 +1,7 @@
-[Class User]
-{Class UsrFactory} (Class UsrFactory)
+#type (structure)
+#title (Class diagram)
+
+(Class UsrFactory) -> [Class User]
 - Create User
 - Creating User need id, name, email
 - Built by a factory

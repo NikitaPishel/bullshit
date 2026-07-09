@@ -1,4 +1,6 @@
-# Example using the (from) -> [to] arrow syntax
+#type (structure)
+#title (Checkout flow)
+
 [Cart]
 - User is on the cart page
 - Item list and total

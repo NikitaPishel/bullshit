@@ -1,3 +1,6 @@
+#type (flowchart)
+#title (Morning routine)
+
 [Start]
 - woke up
 - got out of bed
@@ -6,7 +9,7 @@
 
 (Start) -> [B1]
 - brush teeth
-- wash face
+- wash face {still half-asleep}
 
 (Start) -> [B2]
 - boil water
@@ -18,4 +21,4 @@
 
 (B3) -> [B4]
 - wash hands again
-- dry off
+- dry off {finally awake}

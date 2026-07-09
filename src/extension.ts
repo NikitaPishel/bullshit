@@ -33,9 +33,13 @@ export function activate(context: vscode.ExtensionContext) {
 				'bullshitPanel',
 				'Diagram',
 				vscode.ViewColumn.Beside,
-				{ enableScripts: true, retainContextWhenHidden: true }
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'dist')],
+				}
 			);
-			panel.webview.html = getWebviewHtml(panel.webview);
+			panel.webview.html = getWebviewHtml(panel.webview, context.extensionUri);
 
 			panel.onDidDispose(() => {
 				panel = undefined;

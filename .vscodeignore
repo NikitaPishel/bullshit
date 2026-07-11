@@ -12,3 +12,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+**/*.vsix
+**/*.zip
+proj/**
+Apis-logo-v1.png

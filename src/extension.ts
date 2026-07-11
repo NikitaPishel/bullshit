@@ -25,12 +25,12 @@ function entryKey(id: string, index: number | null): string {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-	const openCommand = vscode.commands.registerCommand('bullshit.openPanel', async () => {
+	const openCommand = vscode.commands.registerCommand('apis-engine.openPanel', async () => {
 		if (panel) {
 			panel.reveal(vscode.ViewColumn.Beside);
 		} else {
 			panel = vscode.window.createWebviewPanel(
-				'bullshitPanel',
+				'apisEnginePanel',
 				'Diagram',
 				vscode.ViewColumn.Beside,
 				{

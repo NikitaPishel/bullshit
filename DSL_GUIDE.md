@@ -1,6 +1,6 @@
-# Bullshit Diagram DSL — Reference & AI Prompt Guide
+# Apis-Engine Diagram DSL — Reference & AI Prompt Guide
 
-This document describes the custom diagram DSL parsed by the `bullshit` VS Code
+This document describes the custom diagram DSL parsed by the `apis-engine` VS Code
 extension, and gives ready-to-use prompts for instructing an AI assistant to
 generate valid diagram source in this syntax.
 

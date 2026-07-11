@@ -1,71 +1,37 @@
-# bullshit README
+# apis-engine
 
-This is the README for your extension "bullshit". After writing up a brief description, we recommend including the following sections.
+Render a custom lightweight diagram DSL as a live, draggable node-and-edge
+diagram directly inside VS Code — no external services (no Mermaid, no
+PlantUML). Parsing and layout (via [dagre](https://github.com/dagrejs/dagre))
+happen entirely inside the extension.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Open a live preview of a diagram written in the DSL via the
+  **Diagram: Open Preview** command.
+- Nodes and edges are laid out automatically and can be dragged around in the
+  preview panel.
+- Works on plain text/Markdown files — just write the DSL and preview it.
 
-For example if there is an image subfolder under your extension project workspace:
+See [DSL_GUIDE.md](DSL_GUIDE.md) for the full syntax reference and example
+prompts for generating diagrams with an AI assistant.
 
-\!\[feature X\]\(images/feature-x.png\)
+## Usage
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+1. Open a file containing diagram source written in the DSL.
+2. Run the **Diagram: Open Preview** command from the Command Palette
+   (`Cmd+Shift+P` / `Ctrl+Shift+P`).
+3. The rendered diagram opens in a side panel and updates as you edit the
+   source file.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+No external dependencies or services are required.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+None currently tracked.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+See [CHANGELOG.md](CHANGELOG.md).

@@ -35,3 +35,8 @@ None currently tracked.
 ## Release Notes
 
 See [CHANGELOG.md](CHANGELOG.md).
+
+## Authors
+
+- [Nikita Pishel](https://github.com/NikitaPishel)
+- [Illia Stavitskiy](https://github.com/illiastv)
